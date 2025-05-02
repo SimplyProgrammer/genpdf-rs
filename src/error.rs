@@ -113,6 +113,8 @@ pub enum ErrorKind {
     PdfIndexError(printpdf::IndexError),
     /// An error caused by `rusttype`.
     RusttypeError(rusttype::Error),
+	/// An FaceParsingError err
+
     /// An error caused by `image`.
     ///
     /// *Only available if the `images` feature is enabled.*
@@ -130,9 +132,9 @@ impl From<printpdf::Error> for ErrorKind {
     fn from(error: printpdf::Error) -> ErrorKind {
         match error {
             printpdf::Error::Io(err) => err.into(),
-            printpdf::Error::Rusttype(err) => err.into(),
             printpdf::Error::Pdf(err) => err.into(),
             printpdf::Error::Index(err) => err.into(),
+            printpdf::Error::FaceParsing(err) => io::Error::new(io::ErrorKind::Other, err.to_string()).into(),
         }
     }
 }

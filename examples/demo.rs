@@ -20,8 +20,8 @@ use genpdf::Element as _;
 use genpdf::{elements, fonts, style};
 
 const FONT_DIRS: &[&str] = &[
-    "/usr/share/fonts/liberation",
-    "/usr/share/fonts/truetype/liberation",
+    "C:\\Windows\\Fonts",
+    // "/usr/share/fonts/truetype/liberation",
 ];
 const DEFAULT_FONT_NAME: &'static str = "LiberationSans";
 const MONO_FONT_NAME: &'static str = "LiberationMono";
@@ -33,9 +33,9 @@ const LOREM_IPSUM: &'static str =
     non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.";
 
 fn main() {
-    let args: Vec<_> = env::args().skip(1).collect();
+    let mut args: Vec<_> = env::args().skip(1).collect();
     if args.len() != 1 {
-        panic!("Missing argument: output file");
+        args = vec!["./examples/demo.pdf".into()]
     }
     let output_file = &args[0];
 

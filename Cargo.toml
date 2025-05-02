@@ -21,11 +21,11 @@ name = "images"
 required-features = ["images"]
 
 [dependencies]
-lopdf = "0.26"
+lopdf = "0.33.0"
 rusttype = "0.8"
 
 [dependencies.image]
-version = "0.23.12"
+version = "0.25.6"
 default-features = false
 optional = true
 
@@ -34,16 +34,16 @@ version = "0.8"
 optional = true
 
 [dependencies.printpdf]
-version = "0.3.4"
+version = "0.5.3"
 default-features = false
 
 [dependencies.derive_more]
-version = "0.99"
+version = "2.0.1"
 default-features = false
 features = ["add", "add_assign", "from", "into", "mul", "mul_assign", "sum"]
 
 [dev-dependencies.float-cmp]
-version = "0.8"
+version = "0.10.0"
 default-features = false
 features = ["std"]
 

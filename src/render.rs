@@ -413,9 +413,31 @@ impl<'p> Layer<'p> {
         P: IntoIterator<Item = i64>,
         C: IntoIterator<Item = u16>,
     {
+        use printpdf::lopdf::Object::*;
+        use printpdf::lopdf::StringFormat::Hexadecimal;
+        use printpdf::lopdf::content::Operation;
+
+        let mut list = Vec::new();
+
+        let joined_points = positions.into_iter().zip(codepoints.into_iter());
+        for (pos, codepoint) in joined_points {
+            if pos != 0 {
+                list.push(Integer(pos));
+            }
+
+            let bytes: Vec<u8> = codepoint.to_be_bytes().to_vec()
+                .into_iter()
+                .filter(|b| *b > 0).collect();
+
+            if !bytes.is_empty() {
+                list.push(String(bytes, Hexadecimal));
+            }
+        }
+
+        let txt_operation = Operation::new("TJ", vec![Array(list)]);
         self.data
             .layer
-            .write_positioned_codepoints(positions.into_iter().zip(codepoints.into_iter()));
+            .add_operation(txt_operation);
     }
 
     /// Transforms the given position that is relative to the upper left corner of the layer to a
