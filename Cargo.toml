@@ -23,6 +23,7 @@ required-features = ["images"]
 [dependencies]
 lopdf = "0.33.0"
 rusttype = "0.8"
+findfont = { git = "https://github.com/SimplyProgrammer/findfont-rs.git" }
 
 [dependencies.image]
 version = "0.25.6"

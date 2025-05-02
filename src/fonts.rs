@@ -68,6 +68,8 @@ use std::fmt;
 use std::fs;
 use std::path;
 
+use findfont::get_sys_font_dir;
+
 use crate::error::{Context as _, Error, ErrorKind};
 use crate::render;
 use crate::style::Style;
@@ -498,6 +500,7 @@ fn from_file(
 }
 
 /// Loads the font family at the given path with the given name.
+/// If path is not valid/found, the system font directory is checked.
 ///
 /// This method assumes that at the given path, these files exist and are valid font files:
 /// - `{name}-Regular.ttf`
@@ -514,12 +517,25 @@ pub fn from_files(
     builtin: Option<Builtin>,
 ) -> Result<FontFamily<FontData>, Error> {
     let dir = dir.as_ref();
-    Ok(FontFamily {
-        regular: from_file(dir, name, FontStyle::Regular, builtin)?,
-        bold: from_file(dir, name, FontStyle::Bold, builtin)?,
-        italic: from_file(dir, name, FontStyle::Italic, builtin)?,
-        bold_italic: from_file(dir, name, FontStyle::BoldItalic, builtin)?,
-    })
+    if dir.exists() {
+        return Ok(FontFamily {
+            regular: from_file(dir, name, FontStyle::Regular, builtin)?,
+            bold: from_file(dir, name, FontStyle::Bold, builtin)?,
+            italic: from_file(dir, name, FontStyle::Italic, builtin)?,
+            bold_italic: from_file(dir, name, FontStyle::BoldItalic, builtin)?,
+        })
+    }
+
+    if let Some(sys_dir) = &get_sys_font_dir() {
+        return Ok(FontFamily {
+            regular: from_file(sys_dir, name, FontStyle::Regular, builtin)?,
+            bold: from_file(sys_dir, name, FontStyle::Bold, builtin)?,
+            italic: from_file(sys_dir, name, FontStyle::Italic, builtin)?,
+            bold_italic: from_file(sys_dir, name, FontStyle::BoldItalic, builtin)?,
+        })
+    }
+
+    return Err(Error::new("No valid font directory was provided!", ErrorKind::InvalidFont))
 }
 
 /// The metrics of a font at a given scale.

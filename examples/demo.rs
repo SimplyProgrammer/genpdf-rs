@@ -20,8 +20,8 @@ use genpdf::Element as _;
 use genpdf::{elements, fonts, style};
 
 const FONT_DIRS: &[&str] = &[
-    "C:\\Windows\\Fonts",
-    // "/usr/share/fonts/truetype/liberation",
+    "/usr/share/fonts/liberation",
+    "/usr/share/fonts/truetype/liberation",
 ];
 const DEFAULT_FONT_NAME: &'static str = "LiberationSans";
 const MONO_FONT_NAME: &'static str = "LiberationMono";
@@ -43,7 +43,7 @@ fn main() {
         .iter()
         .filter(|path| std::path::Path::new(path).exists())
         .next()
-        .expect("Could not find font directory");
+        .unwrap_or(&&"");
     let default_font =
         fonts::from_files(font_dir, DEFAULT_FONT_NAME, Some(fonts::Builtin::Helvetica))
             .expect("Failed to load the default font family");
