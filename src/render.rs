@@ -425,10 +425,10 @@ impl<'p> Layer<'p> {
                 list.push(Integer(pos));
             }
 
-            let bytes: Vec<u8> = codepoint.to_be_bytes().to_vec()
-                .into_iter()
-                .filter(|b| *b > 0).collect();
-
+            let mut bytes: Vec<u8> = codepoint.to_be_bytes().to_vec();
+            if bytes.first() == Some(&0) {
+                bytes.remove(0);
+            }
             if !bytes.is_empty() {
                 list.push(String(bytes, Hexadecimal));
             }

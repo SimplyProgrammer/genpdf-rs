@@ -39,7 +39,7 @@ fn main() {
     }
     let output_file = &args[0];
 
-    let font_dir = FONT_DIRS
+    let font_dir = FONT_DIRS // Not really necessary from_files will search sys fot dir by default...
         .iter()
         .filter(|path| std::path::Path::new(path).exists())
         .next()
