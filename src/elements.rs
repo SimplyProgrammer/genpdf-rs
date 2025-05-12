@@ -44,6 +44,7 @@
 mod images;
 
 use std::collections;
+use std::fmt;
 use std::iter;
 use std::mem;
 
@@ -210,6 +211,12 @@ impl Element for Text {
             result.has_more = true;
         }
         Ok(result)
+    }
+}
+
+impl fmt::Display for Text {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.text.s)
     }
 }
 
@@ -388,6 +395,21 @@ impl Element for Paragraph {
         }
 
         Ok(result)
+    }
+}
+
+impl fmt::Display for Paragraph {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let mut is_first = true;
+        for txt in &self.text {
+            if !is_first {
+                write!(f, " ")?;
+            }
+            write!(f, "{}", txt.s)?;
+            is_first = false;
+        }
+
+        Ok(())
     }
 }
 
