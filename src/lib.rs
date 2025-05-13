@@ -203,7 +203,7 @@ use getset::WithSetters;
     SubAssign,
     Sum,
 )]
-pub struct Mm(f64);
+pub struct Mm(f32);
 
 impl Mm {
     /// Returns the maximum of this value and the given value.
@@ -226,7 +226,7 @@ impl From<i16> for Mm {
 
 impl From<i32> for Mm {
     fn from(mm: i32) -> Mm {
-        Mm(mm.into())
+        Mm(mm as f32)
     }
 }
 
@@ -244,13 +244,13 @@ impl From<u16> for Mm {
 
 impl From<u32> for Mm {
     fn from(mm: u32) -> Mm {
-        Mm(mm.into())
+        Mm(mm as f32)
     }
 }
 
-impl From<f32> for Mm {
-    fn from(mm: f32) -> Mm {
-        Mm(mm.into())
+impl From<f64> for Mm {
+    fn from(mm: f64) -> Mm {
+        Mm(mm as f32)
     }
 }
 
@@ -331,7 +331,7 @@ impl<X: Into<Mm>, Y: Into<Mm>> From<(X, Y)> for Position {
 /// A rotation in degrees clock-wise in range [-180.0, 180.0] inclusive.
 #[derive(Clone, Copy, Default, Debug, PartialEq, PartialOrd, Add, AddAssign, Sub, SubAssign, Getters, Setters, WithSetters)]
 pub struct Rotation {
-    degrees: f64,
+    degrees: f32,
 
     #[getset(get = "pub", set = "pub", set_with = "pub")]
     rotation_center_x: usize,
@@ -341,7 +341,7 @@ pub struct Rotation {
 
 impl Rotation {
     /// Creates a new rotation with the given number of degrees.
-    pub fn from_degrees(degrees: f64) -> Self {
+    pub fn from_degrees(degrees: f32) -> Self {
         let degrees = degrees % 360.0;
         let degrees = if degrees > 180.0 {
             degrees - 360.0
@@ -355,7 +355,7 @@ impl Rotation {
 
     /// Returns the rotation in degrees clock-wise in the range [-180.0, 180.0] inclusive or `None`
     /// if there is no rotation.
-    pub fn degrees(&self) -> Option<f64> {
+    pub fn degrees(&self) -> Option<f32> {
         if self.degrees != 0.0 {
             Some(self.degrees)
         } else {
@@ -367,12 +367,25 @@ impl Rotation {
 impl From<f64> for Rotation {
     fn from(degrees: f64) -> Rotation {
         // Perhaps a poor assumption that we'll always work with degrees?
+        Rotation::from_degrees(degrees as f32)
+    }
+}
+
+impl From<f32> for Rotation {
+    fn from(degrees: f32) -> Rotation {
+        // Perhaps a poor assumption that we'll always work with degrees?
         Rotation::from_degrees(degrees)
     }
 }
 
 impl From<Rotation> for Option<f64> {
     fn from(rotation: Rotation) -> Option<f64> {
+        rotation.degrees().map(|d| d as f64)
+    }
+}
+
+impl From<Rotation> for Option<f32> {
+    fn from(rotation: Rotation) -> Option<f32> {
         rotation.degrees()
     }
 }
@@ -391,21 +404,21 @@ impl From<Rotation> for Option<printpdf::ImageRotation> {
 #[derive(Clone, Copy, Debug, PartialEq, PartialOrd, Add, AddAssign, Sub, SubAssign)]
 pub struct Scale {
     /// The percentage to scale on the x-axis.
-    pub x: f64,
+    pub x: f32,
     /// The percentage to scale on the y-axis.
-    pub y: f64,
+    pub y: f32,
 }
 
 // Overriding default of (0,0) as that would scale it to 0.
 impl Default for Scale {
     fn default() -> Scale {
-        Scale::new(1, 1)
+        Scale::new(1.0, 1.0)
     }
 }
 
 impl Scale {
     /// Creates a new scale for the given x/y values.
-    pub fn new(x: impl Into<f64>, y: impl Into<f64>) -> Scale {
+    pub fn new(x: impl Into<f32>, y: impl Into<f32>) -> Scale {
         Scale {
             x: x.into(),
             y: y.into(),
@@ -413,7 +426,7 @@ impl Scale {
     }
 }
 
-impl<X: Into<f64>, Y: Into<f64>> From<(X, Y)> for Scale {
+impl<X: Into<f32>, Y: Into<f32>> From<(X, Y)> for Scale {
     fn from(values: (X, Y)) -> Scale {
         Scale::new(values.0, values.1)
     }
@@ -673,7 +686,7 @@ impl Document {
     /// Sets the default line spacing factor for this document.
     ///
     /// If this method is not called, the default value of 1 is used.
-    pub fn set_line_spacing(&mut self, line_spacing: f64) {
+    pub fn set_line_spacing(&mut self, line_spacing: f32) {
         self.style.set_line_spacing(line_spacing);
     }
 
@@ -1019,7 +1032,7 @@ impl Context {
 #[cfg(test)]
 mod tests {
     impl float_cmp::ApproxEq for super::Mm {
-        type Margin = float_cmp::F64Margin;
+        type Margin = float_cmp::F32Margin;
 
         fn approx_eq<M: Into<Self::Margin>>(self, other: Self, margin: M) -> bool {
             self.0.approx_eq(other.0, margin)
@@ -1027,7 +1040,7 @@ mod tests {
     }
 
     impl float_cmp::ApproxEq for super::Size {
-        type Margin = float_cmp::F64Margin;
+        type Margin = float_cmp::F32Margin;
 
         fn approx_eq<M: Into<Self::Margin>>(self, other: Self, margin: M) -> bool {
             let margin = margin.into();
@@ -1036,7 +1049,7 @@ mod tests {
     }
 
     impl float_cmp::ApproxEq for super::Position {
-        type Margin = float_cmp::F64Margin;
+        type Margin = float_cmp::F32Margin;
 
         fn approx_eq<M: Into<Self::Margin>>(self, other: Self, margin: M) -> bool {
             let margin = margin.into();

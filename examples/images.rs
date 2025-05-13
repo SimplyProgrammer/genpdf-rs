@@ -46,7 +46,7 @@ fn main() {
             layout.push(
                 elements::Paragraph::new(format!("Page {}", page)).aligned(Alignment::Center),
             );
-            layout.push(elements::Break::new(1));
+            layout.push(elements::Break::new(1.0));
         }
         layout.styled(style::Style::new().with_font_size(10))
     });
@@ -70,7 +70,7 @@ fn main() {
     );
 
     // adding a break to avoid the image posted above with an "absolute image.
-    doc.push(elements::Break::new(2));
+    doc.push(elements::Break::new(2.0));
 
     // IMAGE FILE TYPE HANDLING:
     doc.push(elements::Paragraph::new(
@@ -107,7 +107,7 @@ fn main() {
     }
     doc.push(img_table);
 
-    doc.push(elements::Break::new(2));
+    doc.push(elements::Break::new(2.0));
     doc.push(elements::Paragraph::new(
         "Table with image rotation/offset calculation tests:",
     ));

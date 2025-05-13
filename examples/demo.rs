@@ -63,7 +63,7 @@ fn main() {
             layout.push(
                 elements::Paragraph::new(format!("Page {}", page)).aligned(Alignment::Center),
             );
-            layout.push(elements::Break::new(1));
+            layout.push(elements::Break::new(1.0));
         }
         layout.styled(style::Style::new().with_font_size(10))
     });
@@ -319,7 +319,7 @@ mod images {
             elements::Image::from_path(IMAGE_PATH_JPG)
                 .expect("Unable to load image")
                 .with_alignment(Alignment::Center)
-                .with_scale(genpdf::Scale::new(0.5, 2))
+                .with_scale(genpdf::Scale::new(0.5, 2.0))
                 .with_clockwise_rotation(45.0),
         );
         doc.push(elements::Paragraph::new(

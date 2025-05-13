@@ -30,8 +30,8 @@ fn get_document() -> genpdf::Document {
 
     let mut doc = genpdf::Document::new(default_font);
     doc.set_minimal_conformance();
-    doc.set_creation_date(printpdf::OffsetDateTime::unix_epoch());
-    doc.set_modification_date(printpdf::OffsetDateTime::unix_epoch());
+    doc.set_creation_date(printpdf::OffsetDateTime::now_utc());
+    doc.set_modification_date(printpdf::OffsetDateTime::now_utc());
     doc
 }
 

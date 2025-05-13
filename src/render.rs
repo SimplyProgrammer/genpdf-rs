@@ -326,7 +326,7 @@ impl<'p> Layer<'p> {
         position: LayerPosition,
         scale: Scale,
         rotation: Rotation,
-        dpi: Option<f64>,
+        dpi: Option<f32>,
     ) {
         let dynamic_image = printpdf::Image::from_dynamic_image(image);
         let position = self.transform_position(position);
@@ -361,14 +361,15 @@ impl<'p> Layer<'p> {
             .into_iter()
             .map(|pos| (self.transform_position(pos).into(), false))
             .collect();
+
         let line = printpdf::Line {
             points: line_points,
             is_closed: false,
-            has_fill: false,
-            has_stroke: true,
-            is_clipping_path: false,
+            // has_fill: false,
+            // has_stroke: true,
+            // is_clipping_path: false,
         };
-        self.data.layer.add_shape(line);
+        self.data.layer.add_line(line);
     }
 
     fn set_fill_color(&self, color: Option<Color>) {
@@ -577,8 +578,8 @@ impl<'p> Area<'p> {
     /// area, and *total_weight* is the sum of all given weights.
     pub fn split_horizontally(&self, weights: &[usize]) -> Vec<Area<'p>> {
         let total_weight: usize = weights.iter().sum();
-        let factor = self.size.width / total_weight as f64;
-        let widths = weights.iter().map(|weight| factor * *weight as f64);
+        let factor = self.size.width / total_weight as f32;
+        let widths = weights.iter().map(|weight| factor * *weight as f32);
         let mut offset = Mm(0.0);
         let mut areas = Vec::new();
         for width in widths {
@@ -608,7 +609,7 @@ impl<'p> Area<'p> {
         position: Position,
         scale: Scale,
         rotation: Rotation,
-        dpi: Option<f64>,
+        dpi: Option<f32>,
     ) {
         self.layer
             .add_image(image, self.position(position), scale, rotation, dpi);

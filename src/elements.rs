@@ -445,15 +445,21 @@ impl<T: Into<StyledString>> iter::FromIterator<T> for Paragraph {
 /// ```
 #[derive(Clone, Copy, Debug, Default)]
 pub struct Break {
-    lines: f64,
+    lines: f32,
 }
 
 impl Break {
     /// Creates a new break with the given number of lines.
-    pub fn new(lines: impl Into<f64>) -> Break {
+    pub fn new(lines: impl Into<f32>) -> Break {
         Break {
             lines: lines.into(),
         }
+    }
+}
+
+impl From<f64> for Break {
+    fn from(lines: f64) -> Break {
+        Break::new(lines as f32)
     }
 }
 
