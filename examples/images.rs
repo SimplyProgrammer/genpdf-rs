@@ -16,7 +16,7 @@ const DEFAULT_FONT_NAME: &'static str = "LiberationSans";
 const IMAGE_PATH_JPG: &'static str = "examples/images/test_image.jpg";
 const IMAGE_PATH_BMP: &'static str = "examples/images/test_image.bmp";
 const IMAGE_PATH_PNG: &'static str = "examples/images/test_image.png";
-const IMAGE_ALPHA_PATH_PNG: &'static str = "examples/images/test_alpha.png";
+const IMAGE_ALPHA_PATH_PNG: &'static str = "examples/images/test_alpha.png"; // "https://cdn.pixabay.com/photo/2021/01/10/18/23/alpha-5905984_1280.png"; // You can try this it will work as well
 
 fn main() {
     let mut args: Vec<_> = env::args().skip(1).collect();
@@ -64,7 +64,7 @@ fn main() {
     ));
 
     doc.push(
-        elements::Image::from_path(IMAGE_PATH_JPG)
+        elements::Image::new(IMAGE_PATH_JPG)
             .expect("Unable to load alt image")
             .with_position(genpdf::Position::new(170, -10)) // far over to right and down
             .with_clockwise_rotation(90.0),
@@ -92,7 +92,7 @@ fn main() {
         ("JPG", IMAGE_PATH_JPG),
         ("PNG", IMAGE_PATH_PNG),
     ] {
-        let img = elements::Image::from_path(path).expect("invalid image");
+        let img = elements::Image::new(path).expect("invalid image");
         let mut row = img_table
             .row()
             .element(elements::Paragraph::new(ftype).padded(1));
@@ -122,7 +122,7 @@ fn main() {
     let mut neg_row: Vec<Box<dyn genpdf::Element>> =
         vec![Box::new(elements::Text::new("Negative").padded(1))];
 
-    let img = elements::Image::from_path(IMAGE_PATH_JPG).expect("invalid image");
+    let img = elements::Image::new(IMAGE_PATH_JPG).expect("invalid image");
     for rot in &[30, 45, 90, 120, 150, 180] {
         heading_row.push(Box::new(elements::Text::new(format!("{}°", rot)).padded(1)));
         let rot = f64::from(*rot);
@@ -151,7 +151,7 @@ fn main() {
         .string("are supported now:")
     );
 
-    doc.push(elements::Image::from_path(IMAGE_ALPHA_PATH_PNG)
+    doc.push(elements::Image::new(IMAGE_ALPHA_PATH_PNG)
         .expect("invalid image")
         .with_alignment(Alignment::Center)
         .with_scale(genpdf::Scale::from(0.45))

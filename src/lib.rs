@@ -333,8 +333,10 @@ impl<X: Into<Mm>, Y: Into<Mm>> From<(X, Y)> for Position {
 pub struct Rotation {
     degrees: f32,
 
+    /// The x coordinate of the center of rotation.
     #[getset(get = "pub", set = "pub", set_with = "pub")]
     rotation_center_x: usize,
+    /// The y coordinate of the center of rotation.
     #[getset(get = "pub", set = "pub", set_with = "pub")]
     rotation_center_y: usize,
 }
@@ -600,7 +602,7 @@ impl<T: Into<Mm>> From<T> for Margins {
 /// [`PageDecorator`]: trait.PageDecorator.html
 /// [`SimplePageDecorator`]: struct.SimplePageDecorator.html
 /// [`LinearLayout`]: elements/struct.LinearLayout.html
-#[derive(Getters, Setters, WithSetters)]
+#[derive(Getters)]
 pub struct Document {
     root: elements::LinearLayout,
 

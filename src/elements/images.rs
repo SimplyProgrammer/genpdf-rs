@@ -4,6 +4,7 @@
 
 //! Image support for genpdf-rs.
 
+use std::fs;
 use std::path;
 
 use image::GenericImageView;
@@ -65,6 +66,36 @@ pub struct Image {
 }
 
 impl Image {
+    ///
+    /// Creates a new image from the given uri path.<br>
+    /// The path can be a local path or a remote url (https or http).
+    /// 
+    pub fn new(uri: &str) -> Result<Self, Error> {
+        if uri.starts_with("https:") || uri.starts_with("http:") { 
+            let response = reqwest::blocking::get(uri)
+                .map_err(|e| Error::new(e.to_string(), ErrorKind::Internal))?;
+
+            if !response.status().is_success() {
+                return Err(Error::new(format!("Failed to download image, status: {}", response.status()), ErrorKind::Internal));
+            }
+
+            let image_data = response.bytes()
+                .map_err(|e| Error::new(e.to_string(), ErrorKind::InvalidData))?;
+
+            let temp_file = tempfile::NamedTempFile::new()
+                .map_err(|e| Error::new(e.to_string(), ErrorKind::IoError(e)))?;
+
+            fs::write(temp_file.path(), &image_data)
+                .map_err(|e| Error::new(e.to_string(), ErrorKind::IoError(e)))?;
+
+            return Image::from_path(temp_file.path());
+        }
+
+        let path = fs::canonicalize(uri)
+            .map_err(|e| Error::new(e.to_string(), ErrorKind::IoError(e)))?;
+        return Image::from_path(path);
+    }
+
     /// Creates a new image from an already loaded image.
     pub fn from_dynamic_image(data: image::DynamicImage) -> Result<Self, Error> {
         // if data.color().has_alpha() {
