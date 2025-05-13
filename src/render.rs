@@ -332,13 +332,25 @@ impl<'p> Layer<'p> {
         let position = self.transform_position(position);
         dynamic_image.add_to_layer(
             self.data.layer.clone(),
-            Some(position.x.into()),
-            Some(position.y.into()),
-            rotation.into(),
-            Some(scale.x),
-            Some(scale.y),
-            dpi,
+            printpdf::ImageTransform {
+                translate_x: Some(position.x.into()),
+                translate_y: Some(position.y.into()),
+                rotate: rotation.into(),
+                scale_x: Some(scale.x),
+                scale_y: Some(scale.y),
+                dpi: dpi,
+            }
         );
+
+        // dynamic_image.add_to_layer(
+        //     self.data.layer.clone(),
+        //     Some(position.x.into()),
+        //     Some(position.y.into()),
+        //     rotation.into(),
+        //     Some(scale.x),
+        //     Some(scale.y),
+        //     dpi,
+        // );
     }
 
     fn add_line_shape<I>(&self, points: I)
@@ -417,9 +429,9 @@ impl<'p> Layer<'p> {
         //     .layer
         //     .write_positioned_codepoints(positions.into_iter().zip(codepoints.into_iter()));
 
-        use printpdf::lopdf::Object::*;
-        use printpdf::lopdf::StringFormat::Hexadecimal;
-        use printpdf::lopdf::content::Operation;
+        use lopdf::Object::*;
+        use lopdf::StringFormat::Hexadecimal;
+        use lopdf::content::Operation;
 
         let mut list = Vec::new();
 

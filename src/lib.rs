@@ -170,6 +170,9 @@ use derive_more::{
 };
 
 use error::Context as _;
+use getset::Getters;
+use getset::Setters;
+use getset::WithSetters;
 
 /// A length measured in millimeters.
 ///
@@ -326,9 +329,14 @@ impl<X: Into<Mm>, Y: Into<Mm>> From<(X, Y)> for Position {
 }
 
 /// A rotation in degrees clock-wise in range [-180.0, 180.0] inclusive.
-#[derive(Clone, Copy, Default, Debug, PartialEq, PartialOrd, Add, AddAssign, Sub, SubAssign)]
+#[derive(Clone, Copy, Default, Debug, PartialEq, PartialOrd, Add, AddAssign, Sub, SubAssign, Getters, Setters, WithSetters)]
 pub struct Rotation {
     degrees: f64,
+
+    #[getset(get = "pub", set = "pub", set_with = "pub")]
+    rotation_center_x: usize,
+    #[getset(get = "pub", set = "pub", set_with = "pub")]
+    rotation_center_y: usize,
 }
 
 impl Rotation {
@@ -342,7 +350,7 @@ impl Rotation {
         } else {
             degrees
         };
-        Rotation { degrees }
+        Rotation { degrees, ..Default::default() }
     }
 
     /// Returns the rotation in degrees clock-wise in the range [-180.0, 180.0] inclusive or `None`
@@ -366,6 +374,16 @@ impl From<f64> for Rotation {
 impl From<Rotation> for Option<f64> {
     fn from(rotation: Rotation) -> Option<f64> {
         rotation.degrees()
+    }
+}
+
+impl From<Rotation> for Option<printpdf::ImageRotation> {
+    fn from(rotation: Rotation) -> Option<printpdf::ImageRotation> {
+        Some(printpdf::ImageRotation {
+            angle_ccw_degrees: rotation.degrees().unwrap_or(0.0),
+            rotation_center_x: printpdf::Px(rotation.rotation_center_x),
+            rotation_center_y: printpdf::Px(rotation.rotation_center_y),
+        })
     }
 }
 
@@ -563,15 +581,29 @@ impl<T: Into<Mm>> From<T> for Margins {
 /// [`PageDecorator`]: trait.PageDecorator.html
 /// [`SimplePageDecorator`]: struct.SimplePageDecorator.html
 /// [`LinearLayout`]: elements/struct.LinearLayout.html
+#[derive(Getters, Setters, WithSetters)]
 pub struct Document {
     root: elements::LinearLayout,
+
+    /// The title of the PDF document.
+    #[getset(get = "pub")]
     title: String,
     context: Context,
     style: style::Style,
+    /// The paper size of the PDF document.
+    #[getset(get = "pub")]
     paper_size: Size,
+    /// The page decorator of the PDF document.
+    #[getset(get = "pub")]
     decorator: Option<Box<dyn PageDecorator>>,
+    /// The conformance level of the PDF document.
+    #[getset(get = "pub")]
     conformance: Option<printpdf::PdfConformance>,
+    /// The creation date of the PDF document.
+    #[getset(get = "pub")]
     creation_date: Option<printpdf::OffsetDateTime>,
+    /// The modification date of the PDF document.
+    #[getset(get = "pub")]
     modification_date: Option<printpdf::OffsetDateTime>,
 }
 
@@ -693,59 +725,6 @@ impl Document {
     /// Sets the modification date of the PDF file.
     pub fn set_modification_date(&mut self, date: printpdf::OffsetDateTime) {
         self.modification_date = Some(date);
-    }
-
-    // pub fn root(&self) -> &elements::LinearLayout {
-    //     &self.root
-    // }
-
-    ///
-    /// Returns the title of the PDF document.
-    /// 
-    pub fn title(&self) -> &str {
-        &self.title
-    }
-
-    ///
-    /// Returns the style of the PDF document.
-    /// 
-    // pub fn get_style(&self) -> &style::Style {
-    //     &self.style
-    // }
-
-    ///
-    /// Returns the paper size of the PDF document.
-    /// 
-    pub fn paper_size(&self) -> &Size {
-        &self.paper_size
-    }
-
-    ///
-    /// Returns the page decorator of the PDF document if set.
-    /// 
-    pub fn decorator(&self) -> Option<&dyn PageDecorator> {
-        self.decorator.as_deref()
-    }
-
-    ///
-    /// Returns the PDF conformance settings of the PDF document if set.
-    /// 
-    pub fn conformance(&self) -> Option<&printpdf::PdfConformance> {
-        self.conformance.as_ref()
-    }
-
-    ///
-    /// Returns the creation date of the PDF document if set.
-    /// 
-    pub fn creation_date(&self) -> Option<&printpdf::OffsetDateTime> {
-        self.creation_date.as_ref()
-    }
-
-    ///
-    /// Returns the modification date of the PDF document if set.
-    ///
-    pub fn modification_date(&self) -> Option<&printpdf::OffsetDateTime> {
-        self.modification_date.as_ref()
     }
 
     /// Adds the given element to the document.
