@@ -16,6 +16,7 @@ const DEFAULT_FONT_NAME: &'static str = "LiberationSans";
 const IMAGE_PATH_JPG: &'static str = "examples/images/test_image.jpg";
 const IMAGE_PATH_BMP: &'static str = "examples/images/test_image.bmp";
 const IMAGE_PATH_PNG: &'static str = "examples/images/test_image.png";
+const IMAGE_ALPHA_PATH_PNG: &'static str = "examples/images/test_alpha.png";
 
 fn main() {
     let mut args: Vec<_> = env::args().skip(1).collect();
@@ -143,6 +144,19 @@ fn main() {
     rot_table.push_row(pos_row).expect("Invalid row");
     rot_table.push_row(neg_row).expect("Invalid row");
     doc.push(rot_table);
+
+    doc.push(elements::Break::new(2.0));
+    doc.push(elements::Paragraph::new("Even")
+        .styled_string(" alpha images ", style::Style::new().with_color(style::Color::Rgb(0, 0, 156)).italic())
+        .string("are supported now:")
+    );
+
+    doc.push(elements::Image::from_path(IMAGE_ALPHA_PATH_PNG)
+        .expect("invalid image")
+        .with_alignment(Alignment::Center)
+        .with_scale(genpdf::Scale::from(0.45))
+        .with_clockwise_rotation(30f32)
+    );
 
     doc.render_to_file(output_file)
         .expect("Failed to write output file");

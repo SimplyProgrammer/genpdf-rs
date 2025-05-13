@@ -426,6 +426,12 @@ impl Scale {
     }
 }
 
+impl From<f32> for Scale { 
+    fn from(x: f32) -> Scale { 
+        Scale::new(x, x)
+    }
+}
+
 impl<X: Into<f32>, Y: Into<f32>> From<(X, Y)> for Scale {
     fn from(values: (X, Y)) -> Scale {
         Scale::new(values.0, values.1)
