@@ -25,8 +25,8 @@ lopdf = "0.31.0"
 rusttype = "0.8"
 findfont = { git = "https://github.com/SimplyProgrammer/findfont-rs.git" }
 getset = "0.1.5"
-reqwest = { version = "0.12.15", features = ["blocking"] }
-tempfile = "3.20.0"
+reqwest = { version = "0.12.15", features = ["blocking"], optional = true }
+tempfile = { version = "3.20.0", optional = true }
 
 [dependencies.image]
 version = "0.24.9"
@@ -57,7 +57,7 @@ features = ["embed_en-us"]
 
 [features]
 default = []
-images = ["image", "printpdf/embedded_images"]
+images = ["image", "reqwest", "tempfile", "printpdf/embedded_images"]
 
 [package.metadata.docs.rs]
 all-features = true
