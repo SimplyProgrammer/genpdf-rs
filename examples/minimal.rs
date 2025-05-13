@@ -24,9 +24,9 @@ const FONT_DIRS: &[&str] = &[
 const DEFAULT_FONT_NAME: &'static str = "LiberationSans";
 
 fn main() {
-    let args: Vec<_> = env::args().skip(1).collect();
+    let mut args: Vec<_> = env::args().skip(1).collect();
     if args.len() != 1 {
-        panic!("Missing argument: output file");
+        args = vec!["./examples/minimal.pdf".into()]
     }
     let output_file = &args[0];
 

@@ -18,9 +18,9 @@ const IMAGE_PATH_BMP: &'static str = "examples/images/test_image.bmp";
 const IMAGE_PATH_PNG: &'static str = "examples/images/test_image.png";
 
 fn main() {
-    let args: Vec<_> = env::args().skip(1).collect();
+    let mut args: Vec<_> = env::args().skip(1).collect();
     if args.len() != 1 {
-        panic!("Missing argument: output file");
+        args = vec!["./examples/images.pdf".into()]
     }
     let output_file = &args[0];
 

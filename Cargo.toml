@@ -26,7 +26,7 @@ rusttype = "0.8"
 findfont = { git = "https://github.com/SimplyProgrammer/findfont-rs.git" }
 
 [dependencies.image]
-version = "0.25.6"
+version = "0.23.14"
 default-features = false
 optional = true
 
@@ -35,7 +35,7 @@ version = "0.8"
 optional = true
 
 [dependencies.printpdf]
-version = "0.5.3"
+version = "0.4.1"
 default-features = false
 
 [dependencies.derive_more]

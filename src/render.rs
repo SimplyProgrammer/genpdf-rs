@@ -413,6 +413,10 @@ impl<'p> Layer<'p> {
         P: IntoIterator<Item = i64>,
         C: IntoIterator<Item = u16>,
     {
+        // self.data
+        //     .layer
+        //     .write_positioned_codepoints(positions.into_iter().zip(codepoints.into_iter()));
+
         use printpdf::lopdf::Object::*;
         use printpdf::lopdf::StringFormat::Hexadecimal;
         use printpdf::lopdf::content::Operation;

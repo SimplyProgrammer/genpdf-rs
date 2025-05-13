@@ -197,12 +197,7 @@ impl Element for Text {
     ) -> Result<RenderResult, Error> {
         let mut result = RenderResult::default();
         style.merge(self.text.style);
-        if area.print_str(
-            &context.font_cache,
-            Position::default(),
-            style,
-            &self.text.s,
-        )? {
+        if area.print_str(&context.font_cache, Position::default(), style, &self.text.s,)? {
             result.size = Size::new(
                 style.str_width(&context.font_cache, &self.text.s),
                 style.line_height(&context.font_cache),
