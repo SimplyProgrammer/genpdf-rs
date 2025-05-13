@@ -695,6 +695,59 @@ impl Document {
         self.modification_date = Some(date);
     }
 
+    // pub fn root(&self) -> &elements::LinearLayout {
+    //     &self.root
+    // }
+
+    ///
+    /// Returns the title of the PDF document.
+    /// 
+    pub fn get_title(&self) -> &str {
+        &self.title
+    }
+
+    ///
+    /// Returns the style of the PDF document.
+    /// 
+    // pub fn get_style(&self) -> &style::Style {
+    //     &self.style
+    // }
+
+    ///
+    /// Returns the paper size of the PDF document.
+    /// 
+    pub fn get_paper_size(&self) -> &Size {
+        &self.paper_size
+    }
+
+    ///
+    /// Returns the page decorator of the PDF document if set.
+    /// 
+    pub fn get_decorator(&self) -> Option<&dyn PageDecorator> {
+        self.decorator.as_deref()
+    }
+
+    ///
+    /// Returns the PDF conformance settings of the PDF document if set.
+    /// 
+    pub fn get_conformance(&self) -> Option<&printpdf::PdfConformance> {
+        self.conformance.as_ref()
+    }
+
+    ///
+    /// Returns the creation date of the PDF document if set.
+    /// 
+    pub fn get_creation_date(&self) -> Option<&printpdf::OffsetDateTime> {
+        self.creation_date.as_ref()
+    }
+
+    ///
+    /// Returns the modification date of the PDF document if set.
+    ///
+    pub fn get_modification_date(&self) -> Option<&printpdf::OffsetDateTime> {
+        self.modification_date.as_ref()
+    }
+
     /// Adds the given element to the document.
     ///
     /// The given element is appended to the list of elements that is rendered by the root
