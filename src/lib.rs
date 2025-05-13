@@ -702,7 +702,7 @@ impl Document {
     ///
     /// Returns the title of the PDF document.
     /// 
-    pub fn get_title(&self) -> &str {
+    pub fn title(&self) -> &str {
         &self.title
     }
 
@@ -716,35 +716,35 @@ impl Document {
     ///
     /// Returns the paper size of the PDF document.
     /// 
-    pub fn get_paper_size(&self) -> &Size {
+    pub fn paper_size(&self) -> &Size {
         &self.paper_size
     }
 
     ///
     /// Returns the page decorator of the PDF document if set.
     /// 
-    pub fn get_decorator(&self) -> Option<&dyn PageDecorator> {
+    pub fn decorator(&self) -> Option<&dyn PageDecorator> {
         self.decorator.as_deref()
     }
 
     ///
     /// Returns the PDF conformance settings of the PDF document if set.
     /// 
-    pub fn get_conformance(&self) -> Option<&printpdf::PdfConformance> {
+    pub fn conformance(&self) -> Option<&printpdf::PdfConformance> {
         self.conformance.as_ref()
     }
 
     ///
     /// Returns the creation date of the PDF document if set.
     /// 
-    pub fn get_creation_date(&self) -> Option<&printpdf::OffsetDateTime> {
+    pub fn creation_date(&self) -> Option<&printpdf::OffsetDateTime> {
         self.creation_date.as_ref()
     }
 
     ///
     /// Returns the modification date of the PDF document if set.
     ///
-    pub fn get_modification_date(&self) -> Option<&printpdf::OffsetDateTime> {
+    pub fn modification_date(&self) -> Option<&printpdf::OffsetDateTime> {
         self.modification_date.as_ref()
     }
 
