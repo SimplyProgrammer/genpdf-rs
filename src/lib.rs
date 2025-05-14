@@ -980,12 +980,15 @@ pub trait Element {
         style: style::Style,
     ) -> Result<RenderResult, error::Error>;
 
-    /// Draws a frame around this element using the given line style.
-    fn framed(self, line_style: impl Into<style::LineStyle>) -> elements::FramedElement<Self>
+    /// Draws a frame around this element using the given line styles.
+    fn framed(
+        self,
+        styles: impl IntoIterator<Item = impl Into<style::LineStyle>>,
+    ) -> elements::FramedElement<Self>
     where
         Self: Sized,
     {
-        elements::FramedElement::with_line_style(self, line_style)
+        elements::FramedElement::with_line_styles(self, styles)
     }
 
     /// Adds a padding to this element.

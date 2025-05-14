@@ -110,23 +110,23 @@ impl LinearLayout {
             render_idx: 0,
         }
     }
-
+    
     /// Creates a new linear layout that arranges its elements vertically.
     pub fn vertical() -> LinearLayout {
         LinearLayout::new()
     }
-
+    
     /// Adds the given element to this layout.
     pub fn push<E: IntoBoxedElement>(&mut self, element: E) {
         self.elements.push(element.into_boxed_element());
     }
-
+    
     /// Adds the given element to this layout and it returns the layout.
     pub fn element<E: IntoBoxedElement>(mut self, element: E) -> Self {
         self.push(element);
         self
     }
-
+    
     fn render_vertical(
         &mut self,
         context: &Context,
@@ -136,7 +136,7 @@ impl LinearLayout {
         let mut result = RenderResult::default();
         while area.size().height > Mm(0.0) && self.render_idx < self.elements.len() {
             let element_result =
-                self.elements[self.render_idx].render(context, area.clone(), style)?;
+            self.elements[self.render_idx].render(context, area.clone(), style)?;
             area.add_offset(Position::new(0, element_result.size.height));
             result.size = result.size.stack_vertical(element_result.size);
             if element_result.has_more {
@@ -165,7 +165,7 @@ impl Element for LinearLayout {
 impl<E: IntoBoxedElement> iter::Extend<E> for LinearLayout {
     fn extend<I: IntoIterator<Item = E>>(&mut self, iter: I) {
         self.elements
-            .extend(iter.into_iter().map(|e| e.into_boxed_element()))
+        .extend(iter.into_iter().map(|e| e.into_boxed_element()))
     }
 }
 
@@ -272,40 +272,40 @@ impl Paragraph {
             ..Default::default()
         }
     }
-
+    
     /// Sets the alignment of this paragraph.
     pub fn set_alignment(&mut self, alignment: Alignment) {
         self.alignment = alignment;
     }
-
+    
     /// Sets the alignment of this paragraph and returns the paragraph.
     pub fn aligned(mut self, alignment: Alignment) -> Self {
         self.set_alignment(alignment);
         self
     }
-
+    
     /// Adds a string to the end of this paragraph.
     pub fn push(&mut self, s: impl Into<StyledString>) {
         self.text.push(s.into());
     }
-
+    
     /// Adds a string to the end of this paragraph and returns the paragraph.
     pub fn string(mut self, s: impl Into<StyledString>) -> Self {
         self.push(s);
         self
     }
-
+    
     /// Adds a string with the given style to the end of this paragraph.
     pub fn push_styled(&mut self, s: impl Into<String>, style: impl Into<Style>) {
         self.text.push(StyledString::new(s, style))
     }
-
+    
     /// Adds a string with the given style to the end of this paragraph and returns the paragraph.
     pub fn styled_string(mut self, s: impl Into<String>, style: impl Into<Style>) -> Self {
         self.push_styled(s, style);
         self
     }
-
+    
     fn get_offset(&self, width: Mm, max_width: Mm) -> Mm {
         match self.alignment {
             Alignment::Left => Mm::default(),
@@ -313,7 +313,7 @@ impl Paragraph {
             Alignment::Right => max_width - width,
         }
     }
-
+    
     fn apply_style(&mut self, style: Style) {
         if !self.style_applied {
             for s in &mut self.text {
@@ -332,16 +332,16 @@ impl Element for Paragraph {
         style: Style,
     ) -> Result<RenderResult, Error> {
         let mut result = RenderResult::default();
-
+        
         self.apply_style(style);
-
+        
         if self.words.is_empty() {
             if self.text.is_empty() {
                 return Ok(result);
             }
             self.words = wrap::Words::new(mem::take(&mut self.text)).collect();
         }
-
+        
         let words = self.words.iter().map(Into::into);
         let mut rendered_len = 0;
         let mut wrapper = wrap::Wrapper::new(words, context, area.size().width);
@@ -349,11 +349,11 @@ impl Element for Paragraph {
             let width = line.iter().map(|s| s.width(&context.font_cache)).sum();
             // Calculate the maximum line height
             let metrics = line
-                .iter()
-                .map(|s| s.style.metrics(&context.font_cache))
-                .fold(fonts::Metrics::default(), |max, m| max.max(&m));
+            .iter()
+            .map(|s| s.style.metrics(&context.font_cache))
+            .fold(fonts::Metrics::default(), |max, m| max.max(&m));
             let position = Position::new(self.get_offset(width, area.size().width), 0);
-
+            
             if let Some(mut section) = area.text_section(&context.font_cache, position, metrics) {
                 for s in line {
                     section.print_str(&s.s, s.style)?;
@@ -365,18 +365,18 @@ impl Element for Paragraph {
                 break;
             }
             result.size = result
-                .size
-                .stack_vertical(Size::new(width, metrics.line_height));
+            .size
+            .stack_vertical(Size::new(width, metrics.line_height));
             area.add_offset(Position::new(0, metrics.line_height));
         }
-
+        
         if wrapper.has_overflowed() {
             return Err(Error::new(
                 "Page overflowed while trying to wrap a string",
                 ErrorKind::PageSizeExceeded,
             ));
         }
-
+        
         // Remove the rendered data from self.words so that we don’t render it again on the next
         // call to render.
         while rendered_len > 0 && !self.words.is_empty() {
@@ -388,7 +388,7 @@ impl Element for Paragraph {
                 rendered_len = 0;
             }
         }
-
+        
         Ok(result)
     }
 }
@@ -403,7 +403,7 @@ impl fmt::Display for Paragraph {
             write!(f, "{}", txt.s)?;
             is_first = false;
         }
-
+        
         Ok(())
     }
 }
@@ -657,7 +657,7 @@ impl<E: Element> Element for StyledElement<E> {
 pub struct FramedElement<E: Element> {
     element: E,
     is_first: bool,
-    line_style: LineStyle,
+    line_styles: (LineStyle, LineStyle, LineStyle, LineStyle), // Top, Right, Bottom, Left
 }
 
 impl<E: Element> FramedElement<E> {
@@ -665,14 +665,38 @@ impl<E: Element> FramedElement<E> {
     pub fn new(element: E) -> FramedElement<E> {
         FramedElement::with_line_style(element, LineStyle::new())
     }
-
+    
     /// Creates a new framed element that wraps the given element,
     /// and with the given line style.
     pub fn with_line_style(element: E, line_style: impl Into<LineStyle>) -> FramedElement<E> {
+        let line_style = line_style.into();
         Self {
             is_first: true,
             element,
-            line_style: line_style.into(),
+            line_styles: (line_style, line_style, line_style, line_style),
+        }
+    }
+
+    /// Creates a new framed element that wraps the given element,
+    /// and with the given line styles.
+    pub fn with_line_styles(
+        element: E,
+        styles: impl IntoIterator<Item = impl Into<LineStyle>>,
+    ) -> FramedElement<E> {
+        let styles = styles.into_iter().map(|s| s.into()).collect::<Vec<_>>();
+
+        let (top, right, bottom, left) = match styles.as_slice() {
+            [a] => (a.clone(), a.clone(), a.clone(), a.clone()),
+            [v, h] => (v.clone(), h.clone(), v.clone(), h.clone()),
+            [t, h, b] => (t.clone(), h.clone(), b.clone(), h.clone()),
+            [t, r, b, l] => (t.clone(), r.clone(), b.clone(), l.clone()),
+            _ => panic!("Expected 1 to 4 line styles"),
+        };
+
+        Self {
+            is_first: true,
+            element,
+            line_styles: (top, right, bottom, left),
         }
     }
 }
@@ -686,59 +710,72 @@ impl<E: Element> Element for FramedElement<E> {
     ) -> Result<RenderResult, Error> {
         // For the element area calculations, we have to take into account the full line thickness.
         // For the frame area, we only need half because we specify the center of the line.
-        let line_thickness = self.line_style.thickness();
-        let line_offset = line_thickness / 2.0;
+        let top_line_thickness = self.line_styles.0.thickness();
+        let right_line_thickness = self.line_styles.1.thickness();
+        let bot_line_thickness = self.line_styles.2.thickness();
+        let left_line_thickness = self.line_styles.3.thickness();
 
+        let top_line_offset = self.line_styles.0.thickness() / 2.0;
+        let right_line_offset = self.line_styles.1.thickness() / 2.0;
+        let bot_line_offset = self.line_styles.2.thickness() / 2.0;
+        let left_line_offset = self.line_styles.3.thickness() / 2.0;
+        
         // Calculate the areas in which to draw the element and the frame.
         let mut element_area = area.clone();
         let mut frame_area = area.clone();
         element_area.add_margins(Margins::trbl(
             0,
-            line_thickness,
-            line_thickness,
-            line_thickness,
+            right_line_thickness,
+            bot_line_thickness,
+            left_line_thickness,
         ));
-        frame_area.add_margins(Margins::trbl(0, line_offset, 0, line_offset));
+        frame_area.add_margins(Margins::trbl(0, right_line_offset, 0, left_line_offset));
         if self.is_first {
-            element_area.add_margins(Margins::trbl(line_thickness, 0, 0, 0));
-            frame_area.add_margins(Margins::trbl(line_offset, 0, 0, 0));
+            element_area.add_margins(Margins::trbl(top_line_thickness, 0, 0, 0));
+            frame_area.add_margins(Margins::trbl(top_line_offset, 0, 0, 0));
         }
-
+        
         // Draw the element.
         let mut result = self.element.render(context, element_area, style)?;
         result.size.width = area.size().width;
         if result.has_more {
-            frame_area.set_height(result.size.height + line_offset);
+            frame_area.set_height(result.size.height + top_line_offset + bot_line_offset);
         } else {
-            frame_area.set_height(result.size.height + line_thickness);
+            frame_area.set_height(result.size.height + top_line_thickness + bot_line_thickness);
         }
-
+        
         // Draw the frame.
         let top_left = Position::default();
         let top_right = Position::new(frame_area.size().width, 0);
         let bottom_left = Position::new(0, frame_area.size().height);
         let bottom_right = Position::new(frame_area.size().width, frame_area.size().height);
-
+        
         if self.is_first {
-            result.size.height += line_thickness;
-            frame_area.draw_line(
-                vec![bottom_right, top_right, top_left, bottom_left],
-                self.line_style,
-            );
+            result.size.height += top_line_thickness + bot_line_thickness;
+            // frame_area.draw_line(
+            //     vec![bottom_right, top_right, top_left, bottom_left],
+            //     self.line_style,
+            // );
+            frame_area.draw_line(vec![bottom_right, top_right], self.line_styles.1); // Right line
+            frame_area.draw_line(vec![top_right, top_left], self.line_styles.0); // Top line
+            frame_area.draw_line(vec![top_left, bottom_left], self.line_styles.3); // Left line
         }
         if !result.has_more {
-            result.size.height += line_thickness;
-            frame_area.draw_line(
-                vec![top_left, bottom_left, bottom_right, top_right],
-                self.line_style,
-            );
+            result.size.height += top_line_thickness + bot_line_thickness;
+            // frame_area.draw_line(
+            //     vec![top_left, bottom_left, bottom_right, top_right],
+            //     self.line_style,
+            // );
+            frame_area.draw_line(vec![top_left, bottom_left], self.line_styles.3); // Left line
+            frame_area.draw_line(vec![bottom_left, bottom_right], self.line_styles.2); // Bottom line
+            frame_area.draw_line(vec![bottom_right, top_right], self.line_styles.1); // Right line
         } else {
-            frame_area.draw_line(vec![top_left, bottom_left], self.line_style);
-            frame_area.draw_line(vec![top_right, bottom_right], self.line_style);
+            frame_area.draw_line(vec![top_left, bottom_left], self.line_styles.3); // Left line
+            frame_area.draw_line(vec![top_right, bottom_right], self.line_styles.1); // Right line
         }
-
+        
         self.is_first = false;
-
+        
         Ok(result)
     }
 }
@@ -807,7 +844,7 @@ impl UnorderedList {
             bullet: None,
         }
     }
-
+    
     /// Creates a new unordered list with the given bullet point symbol.
     pub fn with_bullet(bullet: impl Into<String>) -> UnorderedList {
         UnorderedList {
@@ -815,7 +852,7 @@ impl UnorderedList {
             bullet: Some(bullet.into()),
         }
     }
-
+    
     /// Adds an element to this list.
     pub fn push<E: Element + 'static>(&mut self, element: E) {
         let mut point = BulletPoint::new(element);
@@ -824,7 +861,7 @@ impl UnorderedList {
         }
         self.layout.push(point);
     }
-
+    
     /// Adds an element to this list and returns the list.
     pub fn element<E: Element + 'static>(mut self, element: E) -> Self {
         self.push(element);
@@ -926,7 +963,7 @@ impl OrderedList {
     pub fn new() -> OrderedList {
         OrderedList::with_start(1)
     }
-
+    
     /// Creates a new ordered list with the given start number.
     pub fn with_start(start: usize) -> OrderedList {
         OrderedList {
@@ -934,7 +971,7 @@ impl OrderedList {
             number: start,
         }
     }
-
+    
     /// Adds an element to this list.
     pub fn push<E: Element + 'static>(&mut self, element: E) {
         let mut point = BulletPoint::new(element);
@@ -942,7 +979,7 @@ impl OrderedList {
         self.layout.push(point);
         self.number += 1;
     }
-
+    
     /// Adds an element to this list and returns the list.
     pub fn element<E: Element + 'static>(mut self, element: E) -> Self {
         self.push(element);
@@ -1020,12 +1057,12 @@ impl<E: Element> BulletPoint<E> {
             bullet_rendered: false,
         }
     }
-
+    
     /// Sets the bullet point symbol for this bullet point.
     pub fn set_bullet(&mut self, bullet: impl Into<String>) {
         self.bullet = bullet.into();
     }
-
+    
     /// Sets the bullet point symbol for this bullet point and returns the bullet point.
     pub fn with_bullet(mut self, bullet: impl Into<String>) -> Self {
         self.set_bullet(bullet);
@@ -1074,7 +1111,7 @@ pub trait CellDecorator {
     fn set_table_size(&mut self, num_columns: usize, num_rows: usize) {
         let _ = (num_columns, num_rows);
     }
-
+    
     /// Prepares the cell with the given indizes and returns the area for rendering the cell.
     fn prepare_cell<'p>(
         &self,
@@ -1085,7 +1122,7 @@ pub trait CellDecorator {
         let _ = (column, row);
         area
     }
-
+    
     /// Styles the cell with the given indizes thas has been rendered within the given area and the
     /// given row height and return the total row height.
     fn decorate_cell(
@@ -1127,7 +1164,7 @@ impl FrameCellDecorator {
             ..Default::default()
         }
     }
-
+    
     /// Creates a new frame cell decorator with the given border settings, as well as a line style.
     pub fn with_line_style(
         inner: bool,
@@ -1143,7 +1180,7 @@ impl FrameCellDecorator {
             ..Default::default()
         }
     }
-
+    
     fn print_left(&self, column: usize) -> bool {
         if column == 0 {
             self.outer
@@ -1151,7 +1188,7 @@ impl FrameCellDecorator {
             self.inner
         }
     }
-
+    
     fn print_right(&self, column: usize) -> bool {
         if column + 1 == self.num_columns {
             self.outer
@@ -1159,7 +1196,7 @@ impl FrameCellDecorator {
             false
         }
     }
-
+    
     fn print_top(&self, row: usize) -> bool {
         if self.last_row.map(|last_row| row > last_row).unwrap_or(true) {
             if row == 0 {
@@ -1171,7 +1208,7 @@ impl FrameCellDecorator {
             self.cont
         }
     }
-
+    
     fn print_bottom(&self, row: usize, has_more: bool) -> bool {
         if has_more {
             self.cont
@@ -1188,7 +1225,7 @@ impl CellDecorator for FrameCellDecorator {
         self.num_columns = num_columns;
         self.num_rows = num_rows;
     }
-
+    
     fn prepare_cell<'p>(
         &self,
         column: usize,
@@ -1221,7 +1258,7 @@ impl CellDecorator for FrameCellDecorator {
         area.add_margins(margins);
         area
     }
-
+    
     fn decorate_cell(
         &mut self,
         column: usize,
@@ -1234,73 +1271,73 @@ impl CellDecorator for FrameCellDecorator {
         let print_bottom = self.print_bottom(row, has_more);
         let print_left = self.print_left(column);
         let print_right = self.print_right(column);
-
+        
         let size = area.size();
         let line_offset = self.line_style.thickness() / 2.0;
-
+        
         let left = Mm::from(0);
         let right = size.width;
         let top = Mm::from(0);
         let bottom = row_height
-            + if print_bottom {
-                self.line_style.thickness()
-            } else {
-                0.into()
-            }
-            + if print_top {
-                self.line_style.thickness()
-            } else {
-                0.into()
-            };
-
+        + if print_bottom {
+            self.line_style.thickness()
+        } else {
+            0.into()
+        }
+        + if print_top {
+            self.line_style.thickness()
+        } else {
+            0.into()
+        };
+        
         let mut total_height = row_height;
-
+        
         if print_top {
             area.draw_line(
                 vec![
-                    Position::new(left, top + line_offset),
-                    Position::new(right, top + line_offset),
+                Position::new(left, top + line_offset),
+                Position::new(right, top + line_offset),
                 ],
                 self.line_style,
             );
             total_height += self.line_style.thickness();
         }
-
+        
         if print_right {
             area.draw_line(
                 vec![
-                    Position::new(right - line_offset, top),
-                    Position::new(right - line_offset, bottom),
+                Position::new(right - line_offset, top),
+                Position::new(right - line_offset, bottom),
                 ],
                 self.line_style,
             );
         }
-
+        
         if print_bottom {
             area.draw_line(
                 vec![
-                    Position::new(left, bottom - line_offset),
-                    Position::new(right, bottom - line_offset),
+                Position::new(left, bottom - line_offset),
+                Position::new(right, bottom - line_offset),
                 ],
                 self.line_style,
             );
             total_height += self.line_style.thickness();
         }
-
+        
         if print_left {
             area.draw_line(
                 vec![
-                    Position::new(left + line_offset, top),
-                    Position::new(left + line_offset, bottom),
+                Position::new(left + line_offset, top),
+                Position::new(left + line_offset, bottom),
                 ],
                 self.line_style,
             );
         }
-
+        
         if column + 1 == self.num_columns {
             self.last_row = Some(row);
         }
-
+        
         total_height
     }
 }
@@ -1350,19 +1387,19 @@ impl<'a> TableLayoutRow<'a> {
             elements: Vec::new(),
         }
     }
-
+    
     /// Adds the given element to this row.
     pub fn push_element<E: IntoBoxedElement>(&mut self, element: E) {
         self.elements.push(element.into_boxed_element());
     }
-
+    
     /// Adds the given element to this row and returns the row.
     #[must_use]
     pub fn element<E: IntoBoxedElement>(mut self, element: E) -> Self {
         self.push_element(element);
         self
     }
-
+    
     /// Tries to append this row to the table.
     ///
     /// This method fails if the number of elements in this row does not match the number of
@@ -1375,7 +1412,7 @@ impl<'a> TableLayoutRow<'a> {
 impl<'a, E: IntoBoxedElement> iter::Extend<E> for TableLayoutRow<'a> {
     fn extend<I: IntoIterator<Item = E>>(&mut self, iter: I) {
         self.elements
-            .extend(iter.into_iter().map(|e| e.into_boxed_element()))
+        .extend(iter.into_iter().map(|e| e.into_boxed_element()))
     }
 }
 
@@ -1435,19 +1472,19 @@ impl TableLayout {
             cell_decorator: None,
         }
     }
-
+    
     /// Sets the cell decorator for this table.
     pub fn set_cell_decorator(&mut self, decorator: impl CellDecorator + 'static) {
         self.cell_decorator = Some(Box::from(decorator));
     }
-
+    
     /// Adds a row to this table using the [`TableLayoutRow`][] helper struct.
     ///
     /// [`TableLayoutRow`]: struct.TableLayoutRow.html
     pub fn row(&mut self) -> TableLayoutRow<'_> {
         TableLayoutRow::new(self)
     }
-
+    
     /// Adds a row to this table.
     ///
     /// The number of elements in the given vector must match the number of columns.  Otherwise, an
@@ -1467,7 +1504,7 @@ impl TableLayout {
             ))
         }
     }
-
+    
     fn render_row(
         &mut self,
         context: &Context,
@@ -1475,18 +1512,18 @@ impl TableLayout {
         style: Style,
     ) -> Result<RenderResult, Error> {
         let mut result = RenderResult::default();
-
+        
         let areas = area.split_horizontally(&self.column_weights);
         let cell_areas = if let Some(decorator) = &self.cell_decorator {
             areas
-                .iter()
-                .enumerate()
-                .map(|(i, area)| decorator.prepare_cell(i, self.render_idx, area.clone()))
-                .collect()
+            .iter()
+            .enumerate()
+            .map(|(i, area)| decorator.prepare_cell(i, self.render_idx, area.clone()))
+            .collect()
         } else {
             areas.clone()
         };
-
+        
         let mut row_height = Mm::from(0);
         for (area, element) in cell_areas.iter().zip(self.rows[self.render_idx].iter_mut()) {
             let element_result = element.render(context, area.clone(), style)?;
@@ -1494,15 +1531,15 @@ impl TableLayout {
             row_height = row_height.max(element_result.size.height);
         }
         result.size.height = row_height;
-
+        
         if let Some(decorator) = &mut self.cell_decorator {
             for (i, area) in areas.into_iter().enumerate() {
                 let height =
-                    decorator.decorate_cell(i, self.render_idx, result.has_more, area, row_height);
+                decorator.decorate_cell(i, self.render_idx, result.has_more, area, row_height);
                 result.size.height = result.size.height.max(height);
             }
         }
-
+        
         Ok(result)
     }
 }

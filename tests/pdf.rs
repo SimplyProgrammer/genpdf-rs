@@ -146,7 +146,7 @@ test_with_document! {
 
         doc.push(
             elements::Paragraph::new("Lorem ipsum")
-                .framed(style::LineStyle::new())
+                .framed([style::LineStyle::new()])
         );
 
         doc
@@ -163,7 +163,7 @@ test_with_document! {
 
         doc.push(
             elements::Paragraph::new(LOREM_IPSUM)
-                .framed(style::LineStyle::new())
+                .framed([style::LineStyle::new()])
         );
 
         doc
@@ -180,7 +180,7 @@ test_with_document! {
 
         doc.push(
             elements::Paragraph::new("Lorem ipsum")
-                .framed(style::LineStyle::new().with_thickness(5))
+                .framed([style::LineStyle::new().with_thickness(5)])
         );
 
         doc
@@ -197,7 +197,7 @@ test_with_document! {
 
         doc.push(
             elements::Paragraph::new(LOREM_IPSUM)
-                .framed(style::LineStyle::new().with_thickness(5))
+                .framed([style::LineStyle::new().with_thickness(5)])
         );
 
         doc

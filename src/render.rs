@@ -622,6 +622,9 @@ impl<'p> Area<'p> {
     where
         I: IntoIterator<Item = Position>,
     {
+        if line_style.color() == Color::Transparent {
+            return;
+        }
         self.layer.set_outline_thickness(line_style.thickness());
         self.layer.set_outline_color(line_style.color());
         self.layer
@@ -740,6 +743,10 @@ impl<'f, 'p> TextSection<'f, 'p> {
     ///
     /// The font cache for this text section must contain the PDF font for the given style.
     pub fn print_str(&mut self, s: impl AsRef<str>, style: Style) -> Result<(), Error> {
+        if style.color().is_some_and(|color| color == Color::Transparent) {
+            return Ok(());
+        }
+
         let font = style.font(self.font_cache);
         let s = s.as_ref();
 

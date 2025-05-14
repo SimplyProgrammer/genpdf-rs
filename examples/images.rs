@@ -100,7 +100,7 @@ fn main() {
             row.push_element(
                 img.clone()
                     .with_scale(genpdf::Scale::new(*scale, *scale))
-                    .framed(style::LineStyle::new())
+                    .framed([style::LineStyle::new()])
                     .padded(1),
             );
         }
@@ -129,13 +129,13 @@ fn main() {
         pos_row.push(Box::new(
             img.clone()
                 .with_clockwise_rotation(rot)
-                .framed(style::LineStyle::new())
+                .framed([style::LineStyle::new()])
                 .padded(1),
         ));
         neg_row.push(Box::new(
             img.clone()
                 .with_clockwise_rotation(rot * -1.0)
-                .framed(style::LineStyle::new())
+                .framed([style::LineStyle::new()])
                 .padded(1),
         ));
     }

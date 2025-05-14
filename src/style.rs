@@ -57,6 +57,20 @@ pub enum Color {
     Greyscale(u8),
     /// A spot color with cyan, magenta, yellow and key values between 0 and 255.
     SpotColor(u8, u8, u8, u8),
+    /// A transparent color (its not always supported).
+    Transparent,
+}
+
+impl From<(u8, u8, u8)> for Color {
+    fn from((r, g, b): (u8, u8, u8)) -> Color {
+        Color::Rgb(r, g, b)
+    }
+}
+
+impl From<u8> for Color {
+    fn from(val: u8) -> Color {
+        Color::Greyscale(val)
+    }
 }
 
 impl From<Color> for printpdf::Color {
@@ -84,6 +98,7 @@ impl From<Color> for printpdf::Color {
                 f32::from(y) / 255.0,
                 f32::from(k) / 255.0,
             )),
+            Color::Transparent => printpdf::Color::Rgb(printpdf::Rgb::new(1.0, 1.0,  1.0, None)), // Not ideal...
         }
     }
 }
@@ -186,24 +201,24 @@ impl Style {
     }
 
     /// Sets the bold effect for this style.
-    pub fn set_bold(&mut self) {
-        self.is_bold = true;
+    pub fn set_bold(&mut self, bold: bool) {
+        self.is_bold = bold;
     }
 
     /// Sets the bold effect for this style and returns it.
     pub fn bold(mut self) -> Style {
-        self.set_bold();
+        self.set_bold(true);
         self
     }
 
     /// Sets the italic effect for this style.
-    pub fn set_italic(&mut self) {
-        self.is_italic = true;
+    pub fn set_italic(&mut self, italic: bool) {
+        self.is_italic = italic;
     }
 
     /// Sets the italic effect for this style and returns it.
     pub fn italic(mut self) -> Style {
-        self.set_italic();
+        self.set_italic(true);
         self
     }
 
