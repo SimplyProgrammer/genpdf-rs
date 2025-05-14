@@ -10,6 +10,8 @@
 //! - `{FONT_DIR}/{DEFAULT_FONT_NAME}-Bold.ttf`
 //! - `{FONT_DIR}/{DEFAULT_FONT_NAME}-Italic.ttf`
 //! - `{FONT_DIR}/{DEFAULT_FONT_NAME}-BoldItalic.ttf`
+//! <br>However it will also accept the variant without "-" or with space instead of "-". Also variants with and without spaces will be checked and/or variants with suffix shorthands R, B, I, BI or (nothing), B, I, Z
+//! <br>But it is recommended to follow the naming convention above.
 //!
 //! These fonts must be metrically identical to the built-in PDF sans-serif font (Helvetica/Arial).
 

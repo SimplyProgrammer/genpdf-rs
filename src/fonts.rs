@@ -543,6 +543,8 @@ fn from_file(
 /// - `{name}-Bold.ttf`
 /// - `{name}-Italic.ttf`
 /// - `{name}-BoldItalic.ttf`
+/// <br>However it will also accept the variant without "-" or with space instead of "-". Also variants with and without spaces will be checked and/or variants with suffix shorthands R, B, I, BI or (nothing), B, I, Z
+/// <br>But it is recommended to follow the naming convention above.
 ///
 /// If `builtin` is set, built-in PDF fonts are used instead of embedding the fonts in the PDF file
 /// (see the [module documentation](index.html) for more information).  In this case, the given
