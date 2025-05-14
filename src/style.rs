@@ -206,9 +206,9 @@ impl Style {
     }
 
     /// Sets the bold effect for this style and returns it.
-    pub fn bold(mut self) -> Style {
+    pub fn bold(&mut self) -> Style {
         self.set_bold(true);
-        self
+        *self
     }
 
     /// Sets the italic effect for this style.
@@ -217,9 +217,9 @@ impl Style {
     }
 
     /// Sets the italic effect for this style and returns it.
-    pub fn italic(mut self) -> Style {
+    pub fn italic(&mut self) -> Style {
         self.set_italic(true);
-        self
+        *self
     }
 
     /// Sets the font family for this style.
@@ -349,7 +349,7 @@ impl From<Color> for Style {
 
 impl From<Effect> for Style {
     fn from(effect: Effect) -> Style {
-        let style = Style::new();
+        let mut style = Style::new();
         match effect {
             Effect::Bold => style.bold(),
             Effect::Italic => style.italic(),
