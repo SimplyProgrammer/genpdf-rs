@@ -55,6 +55,8 @@ pub enum Color {
     Cmyk(u8, u8, u8, u8),
     /// A greyscale color with a value between 0 and 255.
     Greyscale(u8),
+    /// A spot color with cyan, magenta, yellow and key values between 0 and 255.
+    SpotColor(u8, u8, u8, u8),
 }
 
 impl From<Color> for printpdf::Color {
@@ -76,6 +78,12 @@ impl From<Color> for printpdf::Color {
             Color::Greyscale(val) => {
                 printpdf::Color::Greyscale(printpdf::Greyscale::new(f32::from(val) / 255.0, None))
             }
+            Color::SpotColor(c, m, y, k) => printpdf::Color::SpotColor(printpdf::SpotColor::new(
+                f32::from(c) / 255.0,
+                f32::from(m) / 255.0,
+                f32::from(y) / 255.0,
+                f32::from(k) / 255.0,
+            )),
         }
     }
 }
