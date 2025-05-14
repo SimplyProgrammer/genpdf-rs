@@ -16,6 +16,7 @@
 
 use std::env;
 
+use genpdf::style::LineStyle;
 use genpdf::Alignment;
 use genpdf::Element as _;
 use genpdf::{elements, fonts, style};
@@ -214,7 +215,7 @@ fn main() {
     doc.push(elements::Paragraph::new("Here is an example table:"));
 
     let mut table = elements::TableLayout::new(vec![1, 2]);
-    table.set_cell_decorator(elements::FrameCellDecorator::new(true, false, false));
+    table.set_cell_decorator(elements::FrameCellDecorator::none().with_inner(LineStyle::default()));
     table
         .row()
         .element(
@@ -271,7 +272,7 @@ fn main() {
     ));
 
     let mut table = elements::TableLayout::new(vec![1, 5]);
-    table.set_cell_decorator(elements::FrameCellDecorator::new(true, true, false));
+    table.set_cell_decorator(elements::FrameCellDecorator::with_line_styles(LineStyle::default(), style::LineStyle::new().with_thickness(0.6), style::LineStyle::none()));
     table
         .row()
         .element(

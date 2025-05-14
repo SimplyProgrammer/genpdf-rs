@@ -657,7 +657,7 @@ impl<E: Element> Element for StyledElement<E> {
 pub struct FramedElement<E: Element> {
     element: E,
     is_first: bool,
-    line_styles: (LineStyle, LineStyle, LineStyle, LineStyle), // Top, Right, Bottom, Left
+    line_styles: (LineStyle, LineStyle, LineStyle, LineStyle), // Top, Right, Bottom, Left | 0, 1, 2, 3
 }
 
 impl<E: Element> FramedElement<E> {
@@ -1144,44 +1144,78 @@ pub trait CellDecorator {
 /// [`TableLayout`]: struct.TableLayout.html
 #[derive(Clone, Debug, Default)]
 pub struct FrameCellDecorator {
-    inner: bool,
-    outer: bool,
-    cont: bool,
-    line_style: LineStyle,
+    inner: LineStyle,
+    outer: LineStyle,
+    cont: LineStyle,
+    // line_style: LineStyle,
     num_columns: usize,
     num_rows: usize,
     last_row: Option<usize>,
 }
 
 impl FrameCellDecorator {
-    /// Creates a new frame cell decorator with the given settings for inner, outer and
-    /// continuation borders.
-    pub fn new(inner: bool, outer: bool, cont: bool) -> FrameCellDecorator {
+    /// Creates a new frame cell decorator with no borders.
+    pub fn none() -> FrameCellDecorator {
         FrameCellDecorator {
-            inner,
-            outer,
-            cont,
+            inner: LineStyle::none(),
+            outer: LineStyle::none(),
+            cont: LineStyle::none(),
             ..Default::default()
+        }
+    }
+
+    /// Creates a new frame cell decorator with inner, outer and
+    /// continuation borders given by a line style.
+    pub fn new(line_style: LineStyle) -> FrameCellDecorator {
+        FrameCellDecorator {
+            inner: line_style,
+            outer: line_style,
+            cont: line_style,
+            ..Default::default()
+        }
+    }
+
+    /// Sets the line style for inner borders.
+    pub fn with_inner(self, line_style: LineStyle) -> FrameCellDecorator {
+        FrameCellDecorator {
+            inner: line_style,
+            ..self
+        }
+    }
+
+    /// Sets the line style for outer borders.
+    pub fn with_outer(self, line_style: LineStyle) -> FrameCellDecorator {
+        FrameCellDecorator {
+            outer: line_style,
+            ..self
+        }
+    }
+
+    /// Sets the line style for continuation borders.
+    pub fn with_cont(self, line_style: LineStyle) -> FrameCellDecorator {
+        FrameCellDecorator {
+            cont: line_style,
+            ..self
         }
     }
     
     /// Creates a new frame cell decorator with the given border settings, as well as a line style.
-    pub fn with_line_style(
-        inner: bool,
-        outer: bool,
-        cont: bool,
-        line_style: impl Into<LineStyle>,
+    pub fn with_line_styles(
+        inner: LineStyle,
+        outer: LineStyle,
+        cont: LineStyle,
+        // line_style: impl Into<LineStyle>,
     ) -> FrameCellDecorator {
         Self {
             inner,
             outer,
             cont,
-            line_style: line_style.into(),
+            // line_style: line_style.into(),
             ..Default::default()
         }
     }
     
-    fn print_left(&self, column: usize) -> bool {
+    fn print_left(&self, column: usize) -> LineStyle {
         if column == 0 {
             self.outer
         } else {
@@ -1189,15 +1223,15 @@ impl FrameCellDecorator {
         }
     }
     
-    fn print_right(&self, column: usize) -> bool {
+    fn print_right(&self, column: usize) -> LineStyle {
         if column + 1 == self.num_columns {
             self.outer
         } else {
-            false
+            LineStyle::none()
         }
     }
     
-    fn print_top(&self, row: usize) -> bool {
+    fn print_top(&self, row: usize) -> LineStyle {
         if self.last_row.map(|last_row| row > last_row).unwrap_or(true) {
             if row == 0 {
                 self.outer
@@ -1209,13 +1243,13 @@ impl FrameCellDecorator {
         }
     }
     
-    fn print_bottom(&self, row: usize, has_more: bool) -> bool {
+    fn print_bottom(&self, row: usize, has_more: bool) -> LineStyle {
         if has_more {
             self.cont
         } else if row + 1 == self.num_rows {
             self.outer
         } else {
-            false
+            LineStyle::none()
         }
     }
 }
@@ -1232,28 +1266,11 @@ impl CellDecorator for FrameCellDecorator {
         row: usize,
         mut area: render::Area<'p>,
     ) -> render::Area<'p> {
-        let margin = self.line_style.thickness();
         let margins = Margins::trbl(
-            if self.print_top(row) {
-                margin
-            } else {
-                0.into()
-            },
-            if self.print_right(column) {
-                margin
-            } else {
-                0.into()
-            },
-            if self.print_bottom(row, false) {
-                margin
-            } else {
-                0.into()
-            },
-            if self.print_left(column) {
-                margin
-            } else {
-                0.into()
-            },
+            self.print_top(row).thickness(),
+            self.print_right(column).thickness(),
+            self.print_bottom(row, false).thickness(),
+            self.print_left(column).thickness()
         );
         area.add_margins(margins);
         area
@@ -1268,72 +1285,58 @@ impl CellDecorator for FrameCellDecorator {
         row_height: Mm,
     ) -> Mm {
         let print_top = self.print_top(row);
+        let print_right = self.print_right(column);
         let print_bottom = self.print_bottom(row, has_more);
         let print_left = self.print_left(column);
-        let print_right = self.print_right(column);
         
         let size = area.size();
-        let line_offset = self.line_style.thickness() / 2.0;
+
+        let top_line_offset = print_top.thickness() / 2.0;
+        let right_line_offset = print_right.thickness() / 2.0;
+        let bot_line_offset = print_bottom.thickness() / 2.0;
+        let left_line_offset = print_left.thickness() / 2.0;
         
         let left = Mm::from(0);
         let right = size.width;
         let top = Mm::from(0);
-        let bottom = row_height
-        + if print_bottom {
-            self.line_style.thickness()
-        } else {
-            0.into()
-        }
-        + if print_top {
-            self.line_style.thickness()
-        } else {
-            0.into()
-        };
+        let bottom = row_height + print_bottom.thickness() + print_top.thickness();
         
         let mut total_height = row_height;
         
-        if print_top {
-            area.draw_line(
-                vec![
-                Position::new(left, top + line_offset),
-                Position::new(right, top + line_offset),
-                ],
-                self.line_style,
-            );
-            total_height += self.line_style.thickness();
-        }
+        area.draw_line( // Draw the top line.
+            vec![
+                Position::new(left, top + top_line_offset),
+                Position::new(right, top + top_line_offset),
+            ],
+            print_top,
+        );
+        total_height += print_top.thickness();
         
-        if print_right {
-            area.draw_line(
-                vec![
-                Position::new(right - line_offset, top),
-                Position::new(right - line_offset, bottom),
-                ],
-                self.line_style,
-            );
-        }
+        area.draw_line( // Draw the right line.
+            vec![
+                Position::new(right - right_line_offset, top),
+                Position::new(right - right_line_offset, bottom),
+            ],
+            print_right,
+        );
         
-        if print_bottom {
-            area.draw_line(
-                vec![
-                Position::new(left, bottom - line_offset),
-                Position::new(right, bottom - line_offset),
-                ],
-                self.line_style,
-            );
-            total_height += self.line_style.thickness();
-        }
+        area.draw_line( // Draw the bottom line.
+            vec![
+                Position::new(left, bottom - bot_line_offset),
+                Position::new(right, bottom - bot_line_offset),
+            ],
+            print_bottom,
+        );
+        total_height += print_bottom.thickness();
         
-        if print_left {
-            area.draw_line(
-                vec![
-                Position::new(left + line_offset, top),
-                Position::new(left + line_offset, bottom),
-                ],
-                self.line_style,
-            );
-        }
-        
+        area.draw_line( // Draw the left line.
+            vec![
+                Position::new(left + left_line_offset, top),
+                Position::new(left + left_line_offset, bottom),
+            ],
+            print_left,
+        );
+
         if column + 1 == self.num_columns {
             self.last_row = Some(row);
         }

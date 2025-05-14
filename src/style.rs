@@ -57,8 +57,15 @@ pub enum Color {
     Greyscale(u8),
     /// A spot color with cyan, magenta, yellow and key values between 0 and 255.
     SpotColor(u8, u8, u8, u8),
-    /// A transparent color (its not always supported).
+    /// A transparent color, equivalent to `None` (its not always supported).
     Transparent,
+}
+
+impl Color {
+    /// Returns `true` if the color is not transparent.
+    pub fn is_some(&self) -> bool {
+        self != &Color::Transparent
+    }
 }
 
 impl From<(u8, u8, u8)> for Color {
@@ -609,6 +616,14 @@ impl From<Color> for LineStyle {
 }
 
 impl LineStyle {
+    /// Creates a new line style with no line.
+    pub fn none() -> LineStyle {
+        LineStyle {
+            thickness: Mm::from(0.0),
+            color: Color::Transparent,
+        }
+    }
+
     /// Creates a new line style with default values.
     pub fn new() -> LineStyle {
         LineStyle::default()

@@ -3,6 +3,7 @@
 
 use std::env;
 
+use genpdf::style::LineStyle;
 use genpdf::Alignment;
 use genpdf::Element as _;
 use genpdf::{elements, fonts, style};
@@ -78,7 +79,7 @@ fn main() {
         "Table with image format/scaling tests:",
     ));
     let mut img_table = elements::TableLayout::new(vec![2, 2, 2, 2]);
-    img_table.set_cell_decorator(elements::FrameCellDecorator::new(true, true, false));
+    img_table.set_cell_decorator(elements::FrameCellDecorator::default());
     img_table
         .row()
         .element(elements::Text::new("Format").padded(1))
@@ -113,7 +114,7 @@ fn main() {
         "Table with image rotation/offset calculation tests:",
     ));
     let mut rot_table = elements::TableLayout::new(vec![2, 2, 2, 2, 2, 2, 2]);
-    rot_table.set_cell_decorator(elements::FrameCellDecorator::new(true, true, false));
+    rot_table.set_cell_decorator(elements::FrameCellDecorator::default());
 
     let mut heading_row: Vec<Box<dyn genpdf::Element>> =
         vec![Box::new(elements::Text::new("Rot").padded(1))];
