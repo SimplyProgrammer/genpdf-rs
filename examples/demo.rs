@@ -8,6 +8,7 @@
 //! - `{FONT_DIR}/{name}-Bold.ttf`
 //! - `{FONT_DIR}/{name}-Italic.ttf`
 //! - `{FONT_DIR}/{name}-BoldItalic.ttf`
+//! Fallbacks are also present...
 //! for `name` in {`DEFAULT_FONT_NAME`, `MONO_FONT_NAME`}.
 //!
 //! The generated document using the latest `genpdf-rs` release is available

@@ -244,6 +244,27 @@ impl FontStyle {
             FontStyle::BoldItalic => "BoldItalic",
         }
     }
+
+    fn alt_name(&self, variant: u8) -> &'static str {
+        if variant == 0 {
+            self.name()
+        }
+        else if variant == 1 {
+            match self {
+                FontStyle::Regular => "",
+                FontStyle::Bold => "B",
+                FontStyle::Italic => "I",
+                FontStyle::BoldItalic => "Z",
+            }
+        } else {
+            match self {
+                FontStyle::Regular => "R",
+                FontStyle::Bold => "B",
+                FontStyle::Italic => "I",
+                FontStyle::BoldItalic => "BI",
+            }
+        }
+    }
 }
 
 impl fmt::Display for FontStyle {
@@ -496,7 +517,22 @@ fn from_file(
     FontData::load(
         &dir.as_ref().join(format!("{}-{}.ttf", name, style)),
         builtin,
-    )
+    ).or_else(|_e| FontData::load(
+        &dir.as_ref().join(format!("{} {}.ttf", name, style)),
+        builtin,
+    )).or_else(|_e| FontData::load(
+        &dir.as_ref().join(format!("{}{}.ttf", name.replace(" ", ""), style)),
+        builtin,
+    )).or_else(|_e| FontData::load(
+        &dir.as_ref().join(format!("{}{}.ttf", name.replace(" ", ""), style.alt_name(2))),
+        builtin,
+    )).or_else(|_e| FontData::load(
+        &dir.as_ref().join(format!("{}{}.ttf", name.replace(" ", ""), style.alt_name(1))),
+        builtin,
+    )).or_else(|_e| FontData::load(
+        &dir.as_ref().join(format!("{}{}.ttf", name.replace(" ", "").to_lowercase(), style.alt_name(1))),
+        builtin,
+    ))
 }
 
 /// Loads the font family at the given path with the given name.
