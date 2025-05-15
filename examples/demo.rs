@@ -189,7 +189,7 @@ fn main() {
     doc.push(
         elements::Paragraph::new("And this paragraph has a frame drawn around it and is colored.")
             .padded(genpdf::Margins::vh(0, 1))
-            .framed([style::LineStyle::from(style::Color::Rgb(0, 0, 255)).with_thickness(0.3), style::LineStyle::from(style::Color::Rgb(0, 255, 0)).with_thickness(0.5), style::LineStyle::from(style::Color::Rgb(255, 255, 0)).with_thickness(0.7), style::Color::Rgb(0, 255, 255).into()])
+            .framed([style::LineStyle::from(style::Color::Rgb(0, 0, 255)).with_thickness(0.3), style::LineStyle::from(style::Color::Rgb(0, 255, 0)).with_thickness(0.5), style::LineStyle::from(style::Color::Rgb(255, 220, 0)).with_thickness(0.7), style::Color::Rgb(255, 0, 255).into()])
             .styled(red),
     );
     doc.push(

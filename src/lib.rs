@@ -163,6 +163,7 @@ pub mod style;
 
 use std::fs;
 use std::io;
+use std::io::Write;
 use std::path;
 
 use derive_more::{
@@ -809,6 +810,15 @@ impl Document {
         let file = fs::File::create(path)
             .with_context(|| format!("Could not create file {}", path.display()))?;
         self.render(file)
+    }
+
+    ///
+    /// Renders this document into a `Vec<u8>` and returns it.
+    /// 
+    pub fn to_vec(self) -> Result<Vec<u8>, error::Error> {
+        let mut buffer = Vec::new();
+        self.render(&mut buffer)?;
+        Ok(buffer)
     }
 }
 

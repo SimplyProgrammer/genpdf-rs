@@ -1166,50 +1166,51 @@ impl FrameCellDecorator {
 
     /// Creates a new frame cell decorator with inner, outer and
     /// continuation borders given by a line style.
-    pub fn new(line_style: LineStyle) -> FrameCellDecorator {
+    pub fn new(line_style: impl Into<LineStyle>) -> FrameCellDecorator {
+        let l_style = line_style.into();
         FrameCellDecorator {
-            inner: line_style,
-            outer: line_style,
-            cont: line_style,
+            inner: l_style,
+            outer: l_style,
+            cont: l_style,
             ..Default::default()
         }
     }
 
     /// Sets the line style for inner borders.
-    pub fn with_inner(self, line_style: LineStyle) -> FrameCellDecorator {
+    pub fn with_inner(self, line_style: impl Into<LineStyle>) -> FrameCellDecorator {
         FrameCellDecorator {
-            inner: line_style,
+            inner: line_style.into(),
             ..self
         }
     }
 
     /// Sets the line style for outer borders.
-    pub fn with_outer(self, line_style: LineStyle) -> FrameCellDecorator {
+    pub fn with_outer(self, line_style: impl Into<LineStyle>) -> FrameCellDecorator {
         FrameCellDecorator {
-            outer: line_style,
+            outer: line_style.into(),
             ..self
         }
     }
 
     /// Sets the line style for continuation borders.
-    pub fn with_cont(self, line_style: LineStyle) -> FrameCellDecorator {
+    pub fn with_cont(self, line_style: impl Into<LineStyle>) -> FrameCellDecorator {
         FrameCellDecorator {
-            cont: line_style,
+            cont: line_style.into(),
             ..self
         }
     }
     
     /// Creates a new frame cell decorator with the given border settings, as well as a line style.
     pub fn with_line_styles(
-        inner: LineStyle,
-        outer: LineStyle,
-        cont: LineStyle,
+        inner: impl Into<LineStyle>,
+        outer: impl Into<LineStyle>,
+        cont: impl Into<LineStyle>,
         // line_style: impl Into<LineStyle>,
     ) -> FrameCellDecorator {
         Self {
-            inner,
-            outer,
-            cont,
+            inner: inner.into(),
+            outer: outer.into(),
+            cont: cont.into(),
             // line_style: line_style.into(),
             ..Default::default()
         }
