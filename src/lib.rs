@@ -163,7 +163,6 @@ pub mod style;
 
 use std::fs;
 use std::io;
-use std::io::Write;
 use std::path;
 
 use derive_more::{
@@ -210,6 +209,11 @@ impl Mm {
     /// Returns the maximum of this value and the given value.
     pub fn max(self, other: Mm) -> Mm {
         Mm(self.0.max(other.0))
+    }
+
+	/// Returns the negative of this value.
+    pub fn neg(self) -> Mm {
+        Mm(-self.0)
     }
 }
 
@@ -327,6 +331,15 @@ impl<X: Into<Mm>, Y: Into<Mm>> From<(X, Y)> for Position {
     fn from(values: (X, Y)) -> Position {
         Position::new(values.0, values.1)
     }
+}
+
+impl Into<printpdf::Point> for Position {
+	fn into(self) -> printpdf::Point {
+		printpdf::Point {
+			x: self.x.into(),
+			y: self.y.into(),
+		}
+	}
 }
 
 /// A rotation in degrees clock-wise in range [-180.0, 180.0] inclusive.

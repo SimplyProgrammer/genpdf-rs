@@ -364,9 +364,10 @@ impl Element for Paragraph {
                 result.has_more = true;
                 break;
             }
+
             result.size = result
-            .size
-            .stack_vertical(Size::new(width, metrics.line_height));
+                .size
+                .stack_vertical(Size::new(width, metrics.line_height));
             area.add_offset(Position::new(0, metrics.line_height));
         }
         
@@ -757,7 +758,7 @@ impl<E: Element> Element for FramedElement<E> {
             //     self.line_style,
             // );
             frame_area.draw_line(vec![bottom_right, top_right], self.line_styles.1); // Right line
-            frame_area.draw_line(vec![top_right, top_left], self.line_styles.0); // Top line
+            frame_area.draw_line(vec![top_right + Position::new(right_line_offset, 0), top_left - Position::new(left_line_offset, 0)], self.line_styles.0); // Top line
             frame_area.draw_line(vec![top_left, bottom_left], self.line_styles.3); // Left line
         }
         if !result.has_more {
@@ -767,7 +768,7 @@ impl<E: Element> Element for FramedElement<E> {
             //     self.line_style,
             // );
             frame_area.draw_line(vec![top_left, bottom_left], self.line_styles.3); // Left line
-            frame_area.draw_line(vec![bottom_left, bottom_right], self.line_styles.2); // Bottom line
+            frame_area.draw_line(vec![bottom_right + Position::new(right_line_offset, 0), bottom_left - Position::new(left_line_offset, 0)], self.line_styles.2); // Bottom line
             frame_area.draw_line(vec![bottom_right, top_right], self.line_styles.1); // Right line
         } else {
             frame_area.draw_line(vec![top_left, bottom_left], self.line_styles.3); // Left line

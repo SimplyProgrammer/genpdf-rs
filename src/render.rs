@@ -32,7 +32,7 @@ use crate::{Margins, Mm, Position, Size};
 use crate::{Rotation, Scale};
 
 /// A position relative to the top left corner of a layer.
-struct LayerPosition(Position);
+struct LayerPosition(pub Position);
 
 impl LayerPosition {
     pub fn from_area(area: &Area<'_>, position: Position) -> Self {
@@ -630,6 +630,18 @@ impl<'p> Area<'p> {
         self.layer
             .add_line_shape(points.into_iter().map(|pos| self.position(pos)));
     }
+
+    // pub fn draw_rect(&self, offset: Position, size: Size, color: Color) {
+    //     let ll = self.position(Position::new(offset.x, offset.y + size.height)).0;
+    //     let ur = self.position(Position::new(offset.x + size.width, offset.y)).0;
+    //     self.layer.data.layer.add_rect(printpdf::Rect {
+    //             ll: ll.into(),
+    //             ur: ur.into(),
+    //             mode: printpdf::path::PaintMode::Fill,
+    //             winding: printpdf::path::WindingOrder::NonZero,
+    //         }
+    //     );
+    // }
 
     /// Tries to draw the given string at the given position and returns `true` if the area was
     /// large enough to draw the string.
